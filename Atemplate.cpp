@@ -1,3 +1,2 @@
-#include <data_structures/structures>
-using namespace std;
+#include "data_structures/structures.hpp"
 

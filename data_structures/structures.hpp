@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <unordered_map>
 #include <string>
@@ -7,6 +9,7 @@
 #include <queue>
 #include <unordered_set>
 #include <cstdint>
+using namespace std;
 
 struct TreeNode {
     int val;
