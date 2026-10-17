@@ -1,6 +1,5 @@
 #include "data_structures/structures.hpp"
 
-/*
 // Definition for a Node.
 class Node {
 public:
@@ -18,7 +17,6 @@ public:
         children = _children;
     }
 };
-*/
 
 class Solution {
 public:
