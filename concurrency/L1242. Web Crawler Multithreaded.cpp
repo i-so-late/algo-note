@@ -56,7 +56,7 @@ public:
 };
 
 // ==================== Your implementation goes here ====================
-class Solution {
+class Solution{
     string hostOf(const string& s){
         size_t p = s.find('/', 7);
         if(p == string::npos)
@@ -64,39 +64,96 @@ class Solution {
         return s.substr(7, p-7);
     }
 
-public:
-
-    vector<string> crawl(string startUrl, HtmlParser htmlParser) {
-        queue<string> que;
-        unordered_set<string> us;
-        vector<string> ans;
-        string hostOfStart = hostOf(startUrl);
-        que.push(startUrl);
-        us.emplace(startUrl);
-        ans.push_back(startUrl);
-        while(!que.empty()){
-            int n = que.size();
-            vector<future<vector<string>>> fus;
-            while(n){
-                string tmp = que.front();
-                que.pop();
-                fus.push_back(async(launch::async, [&htmlParser, tmp]{ return htmlParser.getUrls(tmp); }));
-                n--;
+    void loop(HtmlParser htmlParser, string startOf){
+        string job;
+        while(true){
+            {
+                unique_lock<mutex> lk(m);
+                cv.wait(lk, [this]{ return busy == 0 || !jobs.empty(); });
+                if(jobs.empty()) return;
+                job = jobs.front(); 
+                jobs.pop();
+                busy++;
             }
-            for(auto& f : fus){
-                vector<string> res = f.get();
-                for(const auto& s: res){
-                    if(us.find(s) == us.end() && hostOf(s) == hostOfStart){
-                        us.emplace(s);
-                        que.push(s);
-                        ans.push_back(s);
+            vector<string> ans = htmlParser.getUrls(job);
+            {
+                lock_guard<mutex> lk(m);
+                for(auto& s: ans){
+                    if(hostOf(s)==startOf && res.insert(s).second){
+                        jobs.push(s);
                     }
                 }
+                busy--;
             }
+            cv.notify_all();
         }
-        return ans;
     }
-};
+
+public:
+
+    vector<string> crawl(string startUrl, HtmlParser htmlParser){
+        string startOf = hostOf(startUrl);
+        jobs.push(startUrl);
+        res.insert(startUrl);
+        for(int i=0; i<16; ++i){
+            workers.emplace_back([&]{ loop(htmlParser, startOf); });
+        }
+        for(auto &t: workers) t.join();
+        return vector<string>(res.begin(), res.end());
+    }
+
+private:
+    mutex m;
+    condition_variable cv;
+    vector<thread> workers;
+    unordered_set<string> res;
+    queue<string> jobs;
+    int busy=0;
+
+}; 
+
+
+// class Solution {
+//     string hostOf(const string& s){
+//         size_t p = s.find('/', 7);
+//         if(p == string::npos)
+//             return s.substr(7);
+//         return s.substr(7, p-7);
+//     }
+
+// public:
+
+//     vector<string> crawl(string startUrl, HtmlParser htmlParser) {
+//         queue<string> que;
+//         unordered_set<string> us;
+//         vector<string> ans;
+//         string hostOfStart = hostOf(startUrl);
+//         que.push(startUrl);
+//         us.emplace(startUrl);
+//         ans.push_back(startUrl);
+//         while(!que.empty()){
+//             int n = que.size();
+//             vector<future<vector<string>>> fus;
+//             while(n){
+//                 string tmp = que.front();
+//                 que.pop();
+//                 fus.push_back(async(launch::async, [&htmlParser, tmp]{ return htmlParser.getUrls(tmp); }));
+//                 n--;
+//             }
+//             for(auto& f : fus){
+//                 vector<string> res = f.get();
+//                 for(const auto& s: res){
+//                     if(us.find(s) == us.end() && hostOf(s) == hostOfStart){
+//                         us.emplace(s);
+//                         que.push(s);
+//                         ans.push_back(s);
+//                     }
+//                 }
+//             }
+//         }
+//         return ans;
+//     }
+// };
 // ==================== End of implementation ====================
 
 
