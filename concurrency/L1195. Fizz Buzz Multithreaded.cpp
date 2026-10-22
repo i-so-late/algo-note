@@ -40,7 +40,7 @@ public:
     }
 
     // printFizzBuzz() outputs "fizzbuzz".
-	void fizzbuzz(function<void()> printFizzBuzz) {
+    void fizzbuzz(function<void()> printFizzBuzz) {
         while(true){
             unique_lock<mutex> lk(m);
             cv.wait(lk, [this]{ return i%3==0 && i%5==0 || i>n; });

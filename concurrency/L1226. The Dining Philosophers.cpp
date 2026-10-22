@@ -12,7 +12,7 @@ public:
                     function<void()> eat,
                     function<void()> putLeftFork,
                     function<void()> putRightFork) {
-		scoped_lock lk(ms[philosopher], ms[(philosopher+1)%5]);
+        scoped_lock lk(ms[philosopher], ms[(philosopher+1)%5]);
         pickLeftFork(); pickRightFork();
         eat();
         putLeftFork(); putRightFork();
@@ -33,7 +33,7 @@ public:
                     function<void()> eat,
                     function<void()> putLeftFork,
                     function<void()> putRightFork) {
-		scoped_lock lk(ms[philosopher], ms[(philosopher+1)%5]);
+        scoped_lock lk(ms[philosopher], ms[(philosopher+1)%5]);
         pickLeftFork(); pickRightFork();
         eat();
         putLeftFork(); putRightFork();
