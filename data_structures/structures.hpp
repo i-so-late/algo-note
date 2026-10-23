@@ -18,6 +18,8 @@
 #include <condition_variable>
 #include <future>
 #include <functional>
+#include <cstring>
+#include <cmath>
 using namespace std;
 
 struct TreeNode {
