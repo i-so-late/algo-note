@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <map>
 #include <string>
+#include <list>
 #include <algorithm>
 #include <iostream>
 #include <stack>
